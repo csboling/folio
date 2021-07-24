@@ -1,3 +1,12 @@
+--- folio
+--- browse library scripts
+---
+--- E2: scroll through menus
+--- K3: down a level
+---   tags -> scripts -> script
+---   on 'tag:' browse tag
+--- K2: up a level
+
 local json = include('lib/json')
 local tabutil = require('tabutil')
 local UI = require('ui')
