@@ -1,6 +1,8 @@
 --- folio
 --- browse library scripts
 ---
+--- E1 at top level:
+---   toggle tags / scripts
 --- E2: scroll through menus
 --- K3: down a level
 ---   tags -> scripts -> script
@@ -97,7 +99,17 @@ function init()
 end
 
 function enc(n, d)
-  if n == 2 then
+  if n == 1 then
+    if page == 'tags' then
+      all_scripts = true
+      page = 'scripts'
+      scripts_list = UI.ScrollingList.new(0, 10, 1, script_names)
+      redraw()
+    elseif page == 'scripts' then
+      page = 'tags'
+      redraw()
+    end
+  elseif n == 2 then
     if page == 'tags' then
       tags_list:set_index_delta(d, false)
     elseif page == 'scripts' then
@@ -111,7 +123,8 @@ end
 
 function select_tag(tag_name)
   tag = tags[tag_name]
-  scripts_list = UI.ScrollingList.new (0, 10, 1, tag_scripts(tag_name))
+  scripts_list = UI.ScrollingList.new(0, 10, 1, tag_scripts(tag_name))
+  all_scripts = false
 end
       
 function key(n, z)
@@ -173,7 +186,11 @@ function redraw()
     tags_list:redraw()
   elseif page == 'scripts' then
     screen.move(0, 8)
-    screen.text('-- tag:'..tags_list.entries[tags_list.index]..' --')
+    if all_scripts then
+      screen.text('-- all scripts --')
+    else
+      screen.text('-- tag:'..tags_list.entries[tags_list.index]..' --')
+    end
     scripts_list:redraw()
   elseif page == 'script_details' then
     screen.move(0, 8)
