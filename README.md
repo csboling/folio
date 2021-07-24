@@ -9,6 +9,8 @@ It does not currently have any knowledge of which scripts are and are not instal
 --- folio
 --- browse library scripts
 ---
+--- E1 at top level:
+---   toggle tags / scripts
 --- E2: scroll through menus
 --- K3: down a level
 ---   tags -> scripts -> script
