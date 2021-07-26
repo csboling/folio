@@ -57,6 +57,9 @@ end
 function script_entries(s)
   local lines = {}
 
+  if s['project_url'] then
+    lines[#lines + 1] = 'url: '..s['project_url']
+  end
   if s['author'] then
     lines[#lines + 1] = 'by: '..s['author']
   end
@@ -163,10 +166,29 @@ function key(n, z)
         end
         page = 'scripts'
         redraw()
+      elseif s:sub(1, #'url: ') == 'url: ' then
+        local url_name = s:sub(#'url: ' + 1, #s)
+            clock.run(function()
+	          print(url_name)
+		  pull(url_name)
+	        end)
+        redraw()
       end
     end
   end
 end
+
+function pull(url)
+  local dest=_path.code..script_details['project_name']
+  cmd="mkdir -p "..dest
+  print(cmd)
+  os.execute(cmd)
+  
+  cmd="sudo git clone "..url.." "..dest
+  print(cmd)
+  os.execute(cmd)
+end
+
 
 function redraw()
   screen.clear()
