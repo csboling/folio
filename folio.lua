@@ -10,7 +10,9 @@
 --- K2: up a level
 
 local json = include('lib/json')
+local script = require('script')
 local tabutil = require('tabutil')
+local util = require('util')
 local UI = require('ui')
 
 function load_catalogs(cs)
@@ -67,6 +69,13 @@ function script_entries(s)
     for ix,tag in ipairs(s['tags']) do
       lines[#lines + 1] = 'tag: '..tag
     end
+  end
+  
+  local script_dir = paths.code..s['project_name']
+  if util.file_exists(script_dir) then
+    lines[#lines + 1] = 'launch'
+  elseif s['project_url'] then
+    lines[#lines + 1] = 'download'
   end
   
   return lines
@@ -163,6 +172,14 @@ function key(n, z)
         end
         page = 'scripts'
         redraw()
+      elseif s == 'download' then
+        local script_dir = paths.code..script_details['project_name']
+        os.execute('git clone '..script_details['project_url']..' '..script_dir)
+        script_details_list = UI.ScrollingList.new(0, 10, 1, script_entries(script_details))
+        redraw()
+      elseif s == 'launch' then
+        local script_file = paths.code..'/'..script_details['project_name']..'/'..script_details['project_name']..'.lua'
+        script.load(script_file)
       end
     end
   end
