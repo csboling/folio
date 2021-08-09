@@ -76,6 +76,8 @@ function script_entries(s)
   
   local script_dir = paths.code..s['project_name']
   if util.file_exists(script_dir) then
+    script_details['git_hash'] = run_cmdline('cd '..script_dir..' && git describe --always') or ''
+    lines[#lines + 1] = 'update: '..script_details['git_hash']
     lines[#lines + 1] = 'launch'
   elseif s['project_url'] then
     lines[#lines + 1] = 'download'
@@ -164,6 +166,8 @@ function key(n, z)
       redraw()
     elseif page == 'script_details' then
       local s = script_details_list.entries[script_details_list.index]
+      local script_dir = paths.code..script_details['project_name']
+      local script_file = script_dir..'/'..script_details['project_name']..'.lua'
       if s:sub(1, #'tag: ') == 'tag: ' then
         local tag_name = s:sub(#'tag: ' + 1, #s)
         for k,v in ipairs(tag_names) do
@@ -176,16 +180,25 @@ function key(n, z)
         page = 'scripts'
         redraw()
       elseif s == 'download' then
-        local script_dir = paths.code..script_details['project_name']
-        os.execute('git clone '..script_details['project_url']..' '..script_dir)
-        script_details_list = UI.ScrollingList.new(0, 10, 1, script_entries(script_details))
+        run_cmdline('git clone '..script_details['project_url']..' '..script_dir)
+        script_details_list = UI.ScrollingList.new(0, 10, scripts_list.index, script_entries(script_details))
+        redraw()
+      elseif s:sub(1, #'update') == 'update' then
+        run_cmdline('cd '..script_dir..' && git pull')
+        script_details_list = UI.ScrollingList.new(0, 10, scripts_list.index, script_entries(script_details))
         redraw()
       elseif s == 'launch' then
-        local script_file = paths.code..'/'..script_details['project_name']..'/'..script_details['project_name']..'.lua'
         script.load(script_file)
       end
     end
   end
+end
+
+function run_cmdline(cmd)
+  print('$ '..cmd)
+  txt = util.os_capture(cmd)
+  print(txt)
+  return txt
 end
 
 function redraw()
