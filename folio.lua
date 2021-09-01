@@ -30,6 +30,9 @@ function load_catalogs(cs)
     js = json.decode(f:read("*all"))
     for i,e in ipairs(js['entries']) do
       local name = e['project_name']
+      e['git_hash'] = run_cmdline('cd '..paths.code..name..' && git describe --always') or ''
+      if (e['git_hash'] ~= '') then e['there_is'] = ' *' else e['there_is'] = ''  end
+      name = name..e['there_is']
       names[#names + 1] = name
       entries[name] = e
     end
@@ -94,11 +97,14 @@ function tag_scripts(t)
   return names
 end
 
+
 function init()
   scripts, script_names = load_catalogs({
     paths.data..'catalogs/base.json',
     paths.data..'catalogs/community.json',
   })
+
+
   if scripts then
     tags, tag_names = sort_scripts(scripts)
     print('found these tags:')
